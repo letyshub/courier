@@ -1,6 +1,6 @@
 # Courier
 
-[![CI](https://github.com/letyshub/simple-dotnet-cqrs/actions/workflows/ci.yml/badge.svg)](https://github.com/letyshub/simple-dotnet-cqrs/actions/workflows/ci.yml)
+[![CI](https://github.com/letyshub/courier/actions/workflows/ci.yml/badge.svg)](https://github.com/letyshub/courier/actions/workflows/ci.yml)
 [![NuGet](https://img.shields.io/nuget/v/Courier.CQRS.svg)](https://www.nuget.org/packages/Courier.CQRS)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
