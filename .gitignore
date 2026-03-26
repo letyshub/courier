@@ -1,0 +1,26 @@
+# Build outputs
+bin/
+obj/
+*.user
+*.suo
+
+# NuGet
+*.nupkg
+*.snupkg
+packages/
+
+# IDE
+.vs/
+.vscode/
+.idea/
+*.DotSettings.user
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test results
+TestResults/
+coverage/
+*.trx
+*.coverage
