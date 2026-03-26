@@ -1,0 +1,47 @@
+{
+  "metadata": [
+    {
+      "src": [
+        {
+          "files": [ "src/Courier/Courier.csproj" ],
+          "src": ".."
+        }
+      ],
+      "dest": "api",
+      "disableGitFeatures": false,
+      "disableDefaultFilter": false
+    }
+  ],
+  "build": {
+    "content": [
+      {
+        "files": [ "api/**.yml", "api/index.md" ]
+      },
+      {
+        "files": [ "**.md", "toc.yml" ],
+        "src": ".",
+        "exclude": [ "_site/**", "obj/**" ]
+      }
+    ],
+    "resource": [
+      {
+        "files": [ "images/**" ]
+      }
+    ],
+    "dest": "_site",
+    "globalMetadata": {
+      "_appName": "Courier",
+      "_appTitle": "Courier CQRS — Lightweight .NET Mediator",
+      "_appFooter": "Courier CQRS | MIT License",
+      "_enableSearch": true,
+      "_gitContribute": {
+        "repo": "https://github.com/letyshub/courier",
+        "branch": "master"
+      }
+    },
+    "template": [ "default", "modern" ],
+    "sitemap": {
+      "baseUrl": "https://letyshub.github.io/courier"
+    }
+  }
+}

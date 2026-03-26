@@ -1,8 +1,11 @@
 # Courier
 
 [![CI](https://github.com/letyshub/courier/actions/workflows/ci.yml/badge.svg)](https://github.com/letyshub/courier/actions/workflows/ci.yml)
+[![Docs](https://github.com/letyshub/courier/actions/workflows/docs.yml/badge.svg)](https://letyshub.github.io/courier/)
 [![NuGet](https://img.shields.io/nuget/v/Courier.CQRS.svg)](https://www.nuget.org/packages/Courier.CQRS)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
+**Documentation:** https://letyshub.github.io/courier/
 
 **Courier** is a lightweight CQRS library for .NET 8+ that provides a clean way to dispatch **commands**, **queries**, and **events** through a typed pipeline — with no magic, no reflection overhead at startup, and full DI support.
 
