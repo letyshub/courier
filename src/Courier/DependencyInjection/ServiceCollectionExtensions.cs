@@ -1,7 +1,6 @@
 using System.Reflection;
 using Courier.Commands;
 using Courier.Events;
-using Courier.Pipeline;
 using Courier.Queries;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -23,10 +22,12 @@ public static class ServiceCollectionExtensions
     {
         services.TryAddScoped<IDispatcher, Dispatcher>();
 
-        foreach (var assembly in assemblies)
-            RegisterHandlersFromAssembly(services, assembly);
+        var builder = new CourierBuilder(services);
 
-        return new CourierBuilder(services);
+        foreach (var assembly in assemblies)
+            RegisterHandlersFromAssembly(builder, assembly);
+
+        return builder;
     }
 
     /// <summary>
@@ -37,40 +38,57 @@ public static class ServiceCollectionExtensions
 
     // ---
 
-    private static void RegisterHandlersFromAssembly(IServiceCollection services, Assembly assembly)
+    private static void RegisterHandlersFromAssembly(CourierBuilder builder, Assembly assembly)
     {
-        var types = assembly.GetTypes().Where(t => t is { IsAbstract: false, IsInterface: false });
+        var concreteTypes = assembly.GetTypes().Where(t => t is { IsAbstract: false, IsInterface: false });
 
-        foreach (var type in types)
+        foreach (var type in concreteTypes)
         {
-            RegisterCommandHandlers(services, type);
-            RegisterQueryHandlers(services, type);
-            RegisterEventHandlers(services, type);
-            // Pipeline steps are NOT auto-scanned — register them explicitly via services.AddScoped<IPipelineStep<,>,Impl>()
+            RegisterCommandHandlers(builder, type);
+            RegisterQueryHandlers(builder, type);
+            RegisterEventHandlers(builder.Services, type);
+            // Pipeline steps are NOT auto-scanned — use builder.AddPipelineStep() or register explicitly.
         }
     }
 
-    private static void RegisterCommandHandlers(IServiceCollection services, Type type)
+    private static void RegisterCommandHandlers(CourierBuilder builder, Type type)
     {
         foreach (var iface in type.GetInterfaces())
         {
             if (!iface.IsGenericType) continue;
 
             var def = iface.GetGenericTypeDefinition();
-            if (def == typeof(ICommandHandler<,>) || def == typeof(ICommandHandler<>))
-                services.TryAddScoped(iface, type);
+
+            if (def == typeof(ICommandHandler<,>))
+            {
+                builder.Services.TryAddScoped(iface, type);
+                // Record (TCommand, TResult) for open-generic pipeline step registration.
+                var args = iface.GetGenericArguments(); // [TCommand, TResult]
+                builder.DiscoveredPipelines.Add((args[0], args[1]));
+            }
+            else if (def == typeof(ICommandHandler<>))
+            {
+                builder.Services.TryAddScoped(iface, type);
+                // ICommandHandler<TCommand> → TResult = Unit
+                var commandType = iface.GetGenericArguments()[0];
+                builder.DiscoveredPipelines.Add((commandType, typeof(Unit)));
+            }
         }
     }
 
-    private static void RegisterQueryHandlers(IServiceCollection services, Type type)
+    private static void RegisterQueryHandlers(CourierBuilder builder, Type type)
     {
         foreach (var iface in type.GetInterfaces())
         {
             if (!iface.IsGenericType) continue;
 
-            var def = iface.GetGenericTypeDefinition();
-            if (def == typeof(IQueryHandler<,>))
-                services.TryAddScoped(iface, type);
+            if (iface.GetGenericTypeDefinition() == typeof(IQueryHandler<,>))
+            {
+                builder.Services.TryAddScoped(iface, type);
+                // Record (TQuery, TResult) for open-generic pipeline step registration.
+                var args = iface.GetGenericArguments(); // [TQuery, TResult]
+                builder.DiscoveredPipelines.Add((args[0], args[1]));
+            }
         }
     }
 
@@ -84,5 +102,4 @@ public static class ServiceCollectionExtensions
                 services.AddScoped(iface, type); // multiple handlers per event are allowed
         }
     }
-
 }
